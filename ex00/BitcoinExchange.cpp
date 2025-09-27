@@ -1,4 +1,5 @@
 #include "BitcoinExchange.hpp"
+#include <sstream>
 
 BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
@@ -18,7 +19,7 @@ bool BitcoinExchange::safeStoi(std::string number, int begin, int end)
 {
 	try
 	{
-		if (!(std::stoi(number) >= begin && std::stoi(number) <= end))
+		if (!(stringToInt(number) >= begin && stringToInt(number) <= end))
 			return false;
 	}
 	catch (std::exception &e)
@@ -64,7 +65,7 @@ void BitcoinExchange::parseData(std::vector<std::pair<std::string, float> > &vec
 	std::string line, date;
 	float value;
 
-	myfile.open(file);
+	myfile.open(file.c_str());
 	getline(myfile, line);
 	while (getline(myfile, line))
 	{
@@ -72,7 +73,7 @@ void BitcoinExchange::parseData(std::vector<std::pair<std::string, float> > &vec
 		if (pos != std::string::npos)
 		{
 			date = line.substr(0, pos);
-			value = stof(line.substr(pos + (sep == " | " ? 3 : 1), line.size()));
+			value = stringToFloat(line.substr(pos + (sep == " | " ? 3 : 1), line.size()));
 			vector.push_back(std::pair<std::string, float>(date, value));
 		}
 		else
@@ -111,22 +112,21 @@ void BitcoinExchange::Convert(std::vector<std::pair<std::string, float> > &db, s
 					std::cout << date_db << " => " << value_data << " = " << value_data * value_db << std::endl;
 					break;
 				}
-				else
-				{
-					if (index_db > 0)
-					{
-						date_db = db[index_db - 1].first;
-						value_db = db[index_db - 1].second;
-					}
-					std::cout << date_db << " => " << value_data << " = " << value_data * value_db << std::endl;
-					break;
-				}
-			}
-			exit(1);
+			}// dindt find, so search for the closest one;
+			std::pair<std::string, float> found = findClosestDate();
+
 		}
 	}
 }
 
+std::pair<std::string, float> BitcoinExchange::findClosestDate()
+{
+	std::pair<std::string, float> closest;
+
+
+
+	return closest;
+}
 
 void BitcoinExchange::treatFile(std::string file)
 {
@@ -137,4 +137,20 @@ void BitcoinExchange::treatFile(std::string file)
 	parseData(db, std::string("data.csv"), ",");
 
 	Convert(db, data);
+}
+
+int BitcoinExchange::stringToInt(std::string str)
+{
+	std::istringstream stream(str);
+	int val;
+	stream >> val;
+	return (val);
+}
+
+float BitcoinExchange::stringToFloat(std::string str)
+{
+	std::istringstream stream(str);
+	float val;
+	stream >> val;
+	return (val);
 }

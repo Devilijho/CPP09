@@ -21,4 +21,8 @@ class BitcoinExchange
 		bool safeStoi(std::string number, int begin, int end);
 		bool validateDate(std::string date);
 		void treatFile(std::string file);
+		std::pair<std::string, float> findClosestDate();
+
+		int stringToInt(std::string str);
+		float stringToFloat(std::string str);
 };
