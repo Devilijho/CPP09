@@ -157,14 +157,16 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 size_t BitcoinExchange::findClosestDate(Date data, std::vector<Exchange> &db)
 {
 	size_t index = 0;
-	int year = data.year , month = data.month, day = data.day, yearDB, monthDB, dayDB;
+	int yearData = data.year , monthData = data.month, dayData = data.day, yearDB, monthDB, dayDB;
 
 	while (index < db.size())
 	{
 		yearDB = db[index].date.year;
-		yearDB = db[index].date.year;
-		yearDB = db[index].date.year;
-		if (year < db[index].date)
+		monthDB = db[index].date.year;
+		dayDB = db[index].date.year;
+		if (yearDB < )
+			break;
+		index++
 	}
 
 
