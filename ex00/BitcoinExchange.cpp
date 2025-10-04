@@ -1,5 +1,4 @@
 #include "BitcoinExchange.hpp"
-#include <sstream>
 
 BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
@@ -15,12 +14,11 @@ bool BitcoinExchange::validateFile(char *file)
 	return true;
 }
 
-bool BitcoinExchange::safeStoi(std::string number, int begin, int end)
+bool BitcoinExchange::safeStoi(std::string number)
 {
 	try
 	{
-		if (!(stringToInt(number) >= begin && stringToInt(number) <= end))
-			return false;
+		stringToInt(number);
 	}
 	catch (std::exception &e)
 	{
@@ -29,41 +27,60 @@ bool BitcoinExchange::safeStoi(std::string number, int begin, int end)
 	return true;
 }
 
-bool BitcoinExchange::validateDate(std::string date)
+void BitcoinExchange::extractDate(std::vector<Exchange> &vector)
 {
-	std::string extract, rest;
+	std::string extract, rest, dateStr;
 	size_t pos;
+	for (size_t index = 0; index < vector.size(); index++)
+	{
+		vector[index].date.day = -1;
+		vector[index].date.month = -1;
+		vector[index].date.year = -1;
+		dateStr = vector[index].dateStr;
+		pos = dateStr.find("-");
+		if (pos == std::string::npos)
+			continue;
+		extract = dateStr.substr(0, pos);
+		rest = dateStr.substr(pos + 1, dateStr.size());
+		dateStr = rest;
+		if (!safeStoi(extract)) // Check if year is valid
+			continue;
+		vector[index].date.year = stringToInt(extract);
+		pos = rest.find("-");
+		if (pos == std::string::npos)
+			continue;
+		extract = dateStr.substr(0, pos);
+		rest = dateStr.substr(pos + 1, dateStr.size());
+		dateStr = rest;
+		if (!safeStoi(extract)) // Check if month is valid
+			continue;
+		vector[index].date.month = stringToInt(extract);
+		pos = rest.find("-");
+		if (pos != std::string::npos)
+			continue;
+		extract = dateStr.substr(0, dateStr.size());
+		if (!safeStoi(extract)) // Check if day is valid, imagine all months have 31 days :)
+			continue;
+		vector[index].date.day = stringToInt(extract);
+	}
+}
 
-	pos = date.find("-");
-	if (pos == std::string::npos)
+bool BitcoinExchange::validateDate(Date date)
+{
+	if (date.day < 1 || date.day > 31)
 		return false;
-	extract = date.substr(0, pos);
-	rest = date.substr(pos + 1, date.size());
-	date = rest;
-	if (!safeStoi(extract, 0, 9999)) // Check if year is valid
+	else if (date.month < 1 || date.month > 12)
 		return false;
-	pos = rest.find("-");
-	if (pos == std::string::npos)
-		return false;
-	extract = date.substr(0, pos);
-	rest = date.substr(pos + 1, date.size());
-	date = rest;
-	if (!safeStoi(extract, 0, 12)) // Check if month is valid
-		return false;
-	pos = rest.find("-");
-	if (pos != std::string::npos)
-		return false;
-	extract = date.substr(0, date.size());
-	if (!safeStoi(extract, 0, 31)) // Check if day is valid, imagine all months have 31 days :)
+	else if (date.year < 0 || date.year > 9999)
 		return false;
 	return true;
 }
 
-void BitcoinExchange::parseData(std::vector<std::pair<std::string, float> > &vector, std::string file, std::string sep)
+void BitcoinExchange::parseData(std::vector<Exchange> &vector, std::string file, std::string sep)
 {
 	std::ifstream myfile;
-	std::string line, date;
-	float value;
+	std::string line;
+	Exchange data;
 
 	myfile.open(file.c_str());
 	getline(myfile, line);
@@ -72,27 +89,36 @@ void BitcoinExchange::parseData(std::vector<std::pair<std::string, float> > &vec
 		size_t pos = line.find(sep);
 		if (pos != std::string::npos)
 		{
-			date = line.substr(0, pos);
-			value = stringToFloat(line.substr(pos + (sep == " | " ? 3 : 1), line.size()));
-			vector.push_back(std::pair<std::string, float>(date, value));
+			data.dateStr = line.substr(0, pos);
+			data.value = stringToFloat(line.substr(pos + (sep == " | " ? 3 : 1), line.size()));
+			vector.push_back(data);
 		}
 		else
-			vector.push_back(std::pair<std::string, float>(std::string(""), 0));
+		{
+			data.dateStr = "";
+			data.value = 0;
+			vector.push_back(data);
+		}
 	}
 	myfile.close();
 }
 
 
 
-void BitcoinExchange::Convert(std::vector<std::pair<std::string, float> > &db, std::vector<std::pair<std::string, float> > &data)
+void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &data)
 {
-	std::string date_data, date_db;
+	std::string dateStr_data, dateStr_db;
 	float value_data, value_db;
+	Date date_data;
+	bool found = false;
+	size_t index_db;
+
 	for (size_t index_data = 0; index_data < data.size(); index_data++)
 	{
-		date_data = data[index_data].first;
-		value_data = data[index_data].second;
-		if (date_data == "" || value_data == 0)
+		dateStr_data = data[index_data].dateStr;
+		value_data = data[index_data].value;
+		date_data = data[index_data].date;
+		if (dateStr_data == "" || value_data == 0)
 			std::cout << "ERROR, invalid input" << std::endl;
 		else if (value_data < 0)
 			std::cout << "ERROR, number is negative" << std::endl;
@@ -102,39 +128,59 @@ void BitcoinExchange::Convert(std::vector<std::pair<std::string, float> > &db, s
 			std::cout << "ERROR, date format is wrong" << std::endl;
 		else
 		{
-			for (size_t index_db = 0; index_db < db.size(); index_db++)	// Now we search the date hehe
+			found = false;
+			index_db = 0;
+			while (found == false && index_db < db.size())
 			{
-				date_db = db[index_db].first;
-				value_db = db[index_db].second;
-				std::cout << date_data << "///" << date_db << std::endl;
-				if (date_db == date_data)
+				dateStr_db = db[index_db].dateStr;
+				value_db = db[index_db].value;
+				if (dateStr_db == dateStr_data)
 				{
-					std::cout << date_db << " => " << value_data << " = " << value_data * value_db << std::endl;
-					break;
+					std::cout << dateStr_db << " => " << value_data << " = " << value_data * value_db << std::endl;
+					found = true;
 				}
-			}// dindt find, so search for the closest one;
-			std::pair<std::string, float> found = findClosestDate();
+				index_db++;
+			}// dindt find, so search for the closest one in case found == false;
+			if (!found)
+			{
+				std::cout << "DIDNT FIND" << std::endl;
+				index_db = findClosestDate(date_data, db);
+				dateStr_db = db[index_db].dateStr;
+				value_db = db[index_db].value;
+				std::cout << dateStr_db << " => " << value_data << " = " << value_data * value_db << std::endl;
+			}
 
 		}
 	}
 }
 
-std::pair<std::string, float> BitcoinExchange::findClosestDate()
+size_t BitcoinExchange::findClosestDate(Date data, std::vector<Exchange> &db)
 {
-	std::pair<std::string, float> closest;
+	size_t index = 0;
+	int year = data.year , month = data.month, day = data.day, yearDB, monthDB, dayDB;
+
+	while (index < db.size())
+	{
+		yearDB = db[index].date.year;
+		yearDB = db[index].date.year;
+		yearDB = db[index].date.year;
+		if (year < db[index].date)
+	}
 
 
-
-	return closest;
+	return index;
 }
 
 void BitcoinExchange::treatFile(std::string file)
 {
-	std::vector<std::pair<std::string, float> > db;
-	std::vector<std::pair<std::string, float> > data;
+	std::vector<Exchange> db;
+	std::vector<Exchange> data;
 
 	parseData(data, file, " | ");
 	parseData(db, std::string("data.csv"), ",");
+
+	extractDate(data);
+	extractDate(db);
 
 	Convert(db, data);
 }
