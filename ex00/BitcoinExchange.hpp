@@ -36,7 +36,13 @@ class BitcoinExchange
 		void treatFile(std::string file);
 		size_t findClosestDate(Date data, std::vector<Exchange> &db);
 		void extractDate(std::vector<Exchange> &vector);
+		void sortDate(std::vector<Exchange> db);
 
 		int stringToInt(std::string str);
 		float stringToFloat(std::string str);
+
+	private:
+		std::vector<int> dayDB;
+		std::vector<int> monthDB;
+		std::vector<int> yearDB;
 };

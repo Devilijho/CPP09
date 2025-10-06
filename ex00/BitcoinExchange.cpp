@@ -1,4 +1,5 @@
 #include "BitcoinExchange.hpp"
+#include <vector>
 
 BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
@@ -143,7 +144,6 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 			}// dindt find, so search for the closest one in case found == false;
 			if (!found)
 			{
-				std::cout << "DIDNT FIND" << std::endl;
 				index_db = findClosestDate(date_data, db);
 				dateStr_db = db[index_db].dateStr;
 				value_db = db[index_db].value;
@@ -157,18 +157,17 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 size_t BitcoinExchange::findClosestDate(Date data, std::vector<Exchange> &db)
 {
 	size_t index = 0;
-	int yearData = data.year , monthData = data.month, dayData = data.day, yearDB, monthDB, dayDB;
-
-	while (index < db.size())
+	int yearData = data.year , monthData = data.month, dayData = data.day;
+	while (index < db.size() - 1)
 	{
-		yearDB = db[index].date.year;
-		monthDB = db[index].date.year;
-		dayDB = db[index].date.year;
-		if (yearDB < )
+		if ((db[index+1].date.day >= dayData && dayData >= db[index].date.day)
+			&& (db[index+1].date.month >= monthData && monthData >= db[index].date.month)
+			&& (db[index+1].date.year >= yearData && yearData >= db[index].date.year))
+		{
 			break;
-		index++
+		}
+		index++;
 	}
-
 
 	return index;
 }
