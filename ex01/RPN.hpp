@@ -17,6 +17,7 @@ class RPN
 
 		int strToInt(std::string numStr);
 		float strToFloat(std::string numStr);
+		bool findNonDigits(std::string numStr);
 	private:
 		std::string input;
 		std::stack<int> stack;

@@ -27,7 +27,7 @@ bool RPN::verify(char *input)
 
 	this->input = std::string(input);
 	if ((std::string::npos != this->input.find('(', 0)) || (std::string::npos != this->input.find(')', 0)))
-		return (std::cout << "ERROR, parenthesis not allowed ",false);
+		return (std::cout << "ERROR, parenthesis not allowed " << std::endl,false);
 
 	while(stream >> word)
 	{
@@ -39,7 +39,13 @@ bool RPN::verify(char *input)
 				this->stack.push(word[0]);;
 		}
 		else // it is a number
+		{
+			if (strToInt(word) != strToFloat(word))
+				return (std::cout << "ERROR, floats not valid" << std::endl, false);
+			if (findNonDigits(word))
+				return (std::cout << "ERROR, number must be compossed of only digits from 0-9" << std::endl, false);
 			this->stack.push(strToInt(word));
+		}
 	}
 	return true;
 }
@@ -47,6 +53,17 @@ bool RPN::verify(char *input)
 void RPN::build()
 {
 
+}
+
+bool RPN::findNonDigits(std::string numStr)
+{
+	for (size_t i = 0; i < numStr.size() ; i++)
+	{
+		if (numStr[i] < '0' || numStr[i] > '9')
+			return false;
+	}
+
+	return false;
 }
 
 float RPN::strToFloat(std::string numStr)
