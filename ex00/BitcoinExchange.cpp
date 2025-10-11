@@ -3,8 +3,22 @@
 
 BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
-BitcoinExchange::BitcoinExchange(BitcoinExchange &other){ (void)other; }
-BitcoinExchange &BitcoinExchange::operator=(BitcoinExchange &other){(void)other; return *this;}
+BitcoinExchange::BitcoinExchange(BitcoinExchange &other)
+{
+	this->dayDB = other.dayDB;
+	this->monthDB = other.monthDB;
+	this->yearDB = other.yearDB;
+}
+BitcoinExchange &BitcoinExchange::operator=(BitcoinExchange &other)
+{
+	if (this != &other)
+	{
+		this->dayDB = other.dayDB;
+		this->monthDB = other.monthDB;
+		this->yearDB = other.yearDB;
+	}
+	return *this;
+}
 
 bool BitcoinExchange::validateFile(char *file)
 {
