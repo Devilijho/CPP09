@@ -35,8 +35,6 @@ bool RPN::verify(char *input)
 		{
 			if (word.size() > 1 || (word[0] != '*' && word[0] != '/' && word[0] != '-' && word[0] != '+')) // if its differente than any valid operator or is longer than 1 == error
 				return (std::cout << "ERROR, operator " << word << " not valid" << std::endl, false);
-			else // its a valid operator
-				this->stack.push(word[0]);;
 		}
 		else // it is a number
 		{
@@ -44,15 +42,44 @@ bool RPN::verify(char *input)
 				return (std::cout << "ERROR, floats not valid" << std::endl, false);
 			if (findNonDigits(word))
 				return (std::cout << "ERROR, number must be compossed of only digits from 0-9" << std::endl, false);
-			this->stack.push(strToInt(word));
 		}
 	}
 	return true;
 }
 
-void RPN::build()
+void RPN::calculate()
 {
+	std::istringstream stream(input);
+	std::string word;
+	int	result, num1, num2;
 
+	while (stream >> word)
+	{
+		if (word[0] <= '9' && word[0] >= '0')//is a number
+		{
+			stack.push(strToInt(word));
+		}
+		else//is a operator
+		{
+			num1 = stack.top();
+			stack.pop();
+			num2 = stack.top();
+			stack.pop();
+			switch (word[0])
+			{
+				case '+':
+					result = num1 + num2; break;
+				case '-':
+				result = num1 - num2; break;
+				case '*':
+					result = num1 * num2; break;
+				case '/':
+					result = num1 / num2; break;
+			}
+			stack.push(result);
+		}
+	}
+	std::cout << stack.top() << std::endl;
 }
 
 bool RPN::findNonDigits(std::string numStr)
@@ -60,9 +87,8 @@ bool RPN::findNonDigits(std::string numStr)
 	for (size_t i = 0; i < numStr.size() ; i++)
 	{
 		if (numStr[i] < '0' || numStr[i] > '9')
-			return false;
+			return true;
 	}
-
 	return false;
 }
 

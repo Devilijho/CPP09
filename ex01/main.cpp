@@ -8,6 +8,6 @@ int main(int ac, char **av)
 	if (!calc.verify(av[1]))
 		return (1);
 
-	calc.build();
+	calc.calculate();
 	return (0);
 }

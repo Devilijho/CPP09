@@ -13,7 +13,7 @@ class RPN
 		RPN(const RPN &other);
 		RPN &operator=(const RPN &other);
 		bool verify(char *input);
-		void build();
+		void calculate();
 
 		int strToInt(std::string numStr);
 		float strToFloat(std::string numStr);
