@@ -147,7 +147,7 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 				index_db = findClosestDate(date_data, db);
 				dateStr_db = db[index_db].dateStr;
 				value_db = db[index_db].value;
-				std::cout << dateStr_db << " => " << value_data << " = " << value_data * value_db << std::endl;
+				std::cout << dateStr_data << " => " << value_data << " = " << value_data * value_db << std::endl;
 			}
 
 		}
