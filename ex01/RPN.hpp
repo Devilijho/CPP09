@@ -19,4 +19,5 @@ class RPN
 		float strToFloat(std::string numStr);
 	private:
 		std::string input;
+		std::stack<int> stack;
 };
