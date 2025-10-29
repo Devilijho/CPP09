@@ -1,16 +1,23 @@
 #pragma once
 
+#include <cstddef>
+#include <deque>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <string>
 #include <sstream>
 
+#define LIST 0
+#define DEQUE 1
+
 class PmergeMe{
 
 	private:
-		int lenghtArgs;
+		size_t lenghtArgs;
 
-		std::list<size_t> list;
+		std::list<size_t> list; //listo
+		std::deque<size_t> deque; //deck
 	public:
 		PmergeMe();
 		~PmergeMe();
@@ -18,5 +25,7 @@ class PmergeMe{
 		PmergeMe &operator=(const PmergeMe&);
 
 		bool verify(char**, int);
-		int strToInt(std::string numStr);
+		long long strToLong(std::string numStr);
+		void sort();
+		void show(size_t);
 };
