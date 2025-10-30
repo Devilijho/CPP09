@@ -1,7 +1,7 @@
 #include "PmergeMe.hpp"
-#include <climits>
 #include <cstddef>
-#include <string>
+#include <utility>
+
 
 PmergeMe::PmergeMe() : lenghtArgs(0)
 {
@@ -67,10 +67,28 @@ void PmergeMe::show(size_t containerID)
 		std::copy(deque.begin(), deque.end(),
 		std::ostream_iterator<int>(std::cout, " "));
 	}
+	std::cout << std::endl;
 }
 
-void PmergeMe::sort()
+void PmergeMe::subSort()
 {
+}
+
+void PmergeMe::sortList()
+{
+	std::cout << lenghtArgs << " Numbers in total" << std::endl;
+
 
 	std::cout << "Sort done lmao" << std::endl;
 }
+
+// std::list<std::pair<size_t, size_t> > pairs;
+
+	// std::list<size_t>::iterator it;
+	// for (it = list.begin(); it != list.end(); it++)
+	// {
+	// 	std::pair<size_t, size_t> pair;
+	// 	pair.first = *it;
+	// 	pair.second = *(++it);
+	// 	pairs.push_back(pair);
+	// }

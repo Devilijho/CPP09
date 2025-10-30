@@ -11,6 +11,6 @@ int main(int ac, char **av)
 		return (1);
 	std::cout << "Before:	";
 	merge.show(0);
-	merge.sort();
+	merge.sortList();
 	return (0);
 }

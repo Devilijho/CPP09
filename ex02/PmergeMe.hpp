@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <deque>
 #include <iostream>
@@ -7,6 +8,11 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <cstddef>
+#include <utility>
+#include <climits>
+#include <set>
+
 
 #define LIST 0
 #define DEQUE 1
@@ -26,6 +32,7 @@ class PmergeMe{
 
 		bool verify(char**, int);
 		long long strToLong(std::string numStr);
-		void sort();
+		void sortList();
 		void show(size_t);
+		void subSort();
 };
