@@ -70,14 +70,33 @@ void PmergeMe::show(size_t containerID)
 	std::cout << std::endl;
 }
 
-void PmergeMe::subSort()
+void copyRange(std::list<size_t> list, size_t start, size_t end)
 {
+	std::list<size_t>::iterator it;
+	for (it = list.begin(); it != list.end(); it++)
+	{
+
+
+	}
+}
+
+void PmergeMe::divideList(int order)
+{
+	if (order == 1)
+		return ;
+	else
+	{
+		std::list<size_t> list_r, list_l;
+
+
+		return (divideList(order-1), divideList(order -1));
+	}
 }
 
 void PmergeMe::sortList()
 {
 	std::cout << lenghtArgs << " Numbers in total" << std::endl;
-
+	divideList(lenghtArgs); // supposing arguments are pair
 
 	std::cout << "Sort done lmao" << std::endl;
 }

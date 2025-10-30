@@ -30,6 +30,7 @@ class PmergeMe{
 		PmergeMe(const PmergeMe&);
 		PmergeMe &operator=(const PmergeMe&);
 
+		void divideList(int order);
 		bool verify(char**, int);
 		long long strToLong(std::string numStr);
 		void sortList();
