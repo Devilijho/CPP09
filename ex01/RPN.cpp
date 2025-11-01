@@ -1,5 +1,6 @@
 #include "RPN.hpp"
 #include <cstdlib>
+#include <iostream>
 #include <sstream>
 
 RPN::RPN(){}
@@ -24,26 +25,31 @@ bool RPN::verify(char *input)
 {
 	std::istringstream stream((std::string(input)));
 	std::string word;
+	unsigned int count_operators = 0, count_numbers = 0;
 
 	this->input = std::string(input);
 	if ((std::string::npos != this->input.find('(', 0)) || (std::string::npos != this->input.find(')', 0)))
-		return (std::cout << "ERROR, parenthesis not allowed " << std::endl,false);
+		return (std::cerr << "ERROR, parenthesis not allowed " << std::endl,false);
 
 	while(stream >> word)
 	{
 		if (word[0] > '9' || word[0] < '0') // if first char of word is not a number
 		{
 			if (word.size() > 1 || (word[0] != '*' && word[0] != '/' && word[0] != '-' && word[0] != '+')) // if its differente than any valid operator or is longer than 1 == error
-				return (std::cout << "ERROR, operator " << word << " not valid" << std::endl, false);
+				return (std::cerr << "ERROR, operator " << word << " not valid" << std::endl, false);
+			count_operators++;
 		}
 		else // it is a number
 		{
 			if (strToInt(word) != strToFloat(word))
-				return (std::cout << "ERROR, floats not valid" << std::endl, false);
+				return (std::cerr << "ERROR, floats not valid" << std::endl, false);
 			if (findNonDigits(word))
-				return (std::cout << "ERROR, number must be compossed of only digits from 0-9" << std::endl, false);
+				return (std::cerr << "ERROR, number must be compossed of only digits from 0-9" << std::endl, false);
+			count_numbers++;
 		}
 	}
+	if (count_numbers - 1 != count_operators)
+		return (std::cerr << "Error, input not valid" << std::endl, false);
 	return true;
 }
 
@@ -55,6 +61,7 @@ void RPN::calculate()
 
 	while (stream >> word)
 	{
+		// std::cout << word << std::endl;
 		if (word[0] <= '9' && word[0] >= '0')//is a number
 		{
 			stack.push(strToInt(word));
@@ -74,7 +81,13 @@ void RPN::calculate()
 				case '*':
 					result = num1 * num2; break;
 				case '/':
-					result = num2 / num1; break;
+					if (num1 == 0)
+					{
+						std::cerr << "ERROR, cannot divide by 0" << std::endl;
+						exit(1);
+					}
+					result = num2 / num1;
+				 	break;
 			}
 			stack.push(result);
 		}
