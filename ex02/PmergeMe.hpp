@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 #include <list>
 #include <deque>
@@ -11,29 +12,18 @@
 #include <iomanip>
 #include <cctype>
 
+#define DEQUE 0
+#define LIST 1
+
+
 class PmergeMe {
 
 	private:
-		int lenghtArgs;
+		size_t lenghtArgs;
 
 		std::list<size_t> list;
 		std::deque<size_t> deque;
 
-		void mergeInsertSort(std::list<size_t>& container);
-		void mergeInsertSort(std::deque<size_t>& container);
-
-		template<typename T>
-		void printContainer(const T& container, const std::string& prefix) const;
-
-		std::vector<int> getJacobsthal(int n) const;
-
-		void sortPairsList(std::list<std::list<size_t> >& pairs);
-		void mergeSortList(std::list<std::list<size_t> >& pairs, size_t straggler);
-		void insertionSortList(std::list<size_t>& main_chain, std::list<size_t>& pend_elements);
-
-		void sortPairsDeque(std::deque<std::deque<size_t> >& pairs);
-		void mergeSortDeque(std::deque<std::deque<size_t> >& pairs, size_t straggler);
-		void insertionSortDeque(std::deque<size_t>& main_chain, std::deque<size_t>& pend_elements);
 
 	public:
 		PmergeMe();
@@ -43,6 +33,14 @@ class PmergeMe {
 
 		bool verify(char** av, int ac);
 		int strToInt(std::string numStr);
+		std::string intToStr(int num);
+		void sortDeque();
+		void sortList();
 
-		void runSort(char** av, int ac);
+		void createDeques(std::deque< std::deque <size_t> > &sets, size_t order);
+		void sortSubDeques(std::deque< std::deque <size_t> > &sets, size_t order);
+		void showList(std::list<size_t> list);
+		void showDeque(std::deque<size_t> deque);
+
+
 };
