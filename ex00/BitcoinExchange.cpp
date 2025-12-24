@@ -5,27 +5,20 @@ BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
 BitcoinExchange::BitcoinExchange(BitcoinExchange &other)
 {
-	this->dayDB = other.dayDB;
-	this->monthDB = other.monthDB;
-	this->yearDB = other.yearDB;
+	(void)other;
 }
 BitcoinExchange &BitcoinExchange::operator=(BitcoinExchange &other)
 {
-	if (this != &other)
-	{
-		this->dayDB = other.dayDB;
-		this->monthDB = other.monthDB;
-		this->yearDB = other.yearDB;
-	}
+	(void)other;
 	return *this;
 }
 
 bool BitcoinExchange::validateFile(char *file)
 {
 	if (access(file, F_OK))
-		return (std::cout << "ERROR, file doesn't exist" << std::endl, false);
+		return (std::cout << "ERROR, '"<< file <<  "' doesn't exist" << std::endl, false);
 	if (access(file, R_OK))
-		return (std::cout << "ERROR, file cannot be opened" << std::endl, false);
+		return (std::cout << "ERROR, '"<< file <<  "' cannot be opened" << std::endl, false);
 	return true;
 }
 
@@ -118,6 +111,10 @@ void BitcoinExchange::parseData(std::vector<Exchange> &vector, std::string file,
 	myfile.close();
 }
 
+long BitcoinExchange::getDateValue(Date& d)
+{
+	return (d.year * 10000) + (d.month * 100) + (d.day);
+}
 
 
 void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &data)
@@ -170,20 +167,21 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 
 size_t BitcoinExchange::findClosestDate(Date data, std::vector<Exchange> &db)
 {
-	size_t index = 0;
-	int yearData = data.year , monthData = data.month, dayData = data.day;
-	while (index < db.size() - 1)
-	{
-		if ((db[index+1].date.day >= dayData && dayData >= db[index].date.day)
-			&& (db[index+1].date.month >= monthData && monthData >= db[index].date.month)
-			&& (db[index+1].date.year >= yearData && yearData >= db[index].date.year))
-		{
-			break;
-		}
-		index++;
-	}
+	long inputVal = getDateValue(data);
 
-	return index;
+    if (inputVal < getDateValue(db[0].date))
+        return 0;
+
+    for (size_t i = 0; i < db.size(); i++)
+    {
+        long dbVal = getDateValue(db[i].date);
+
+        if (dbVal > inputVal)
+        {
+            return (i > 0) ? i - 1 : 0;
+        }
+    }
+    return db.size() - 1;
 }
 
 void BitcoinExchange::treatFile(std::string file)

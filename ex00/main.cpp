@@ -1,5 +1,7 @@
 #include "BitcoinExchange.hpp"
 
+//Move data csv to root of proyect
+
 int	main(int ac, char **av)
 {
 	BitcoinExchange btc;

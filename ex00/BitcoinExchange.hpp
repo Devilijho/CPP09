@@ -40,9 +40,7 @@ class BitcoinExchange
 
 		int stringToInt(std::string str);
 		float stringToFloat(std::string str);
+		long getDateValue(Date& d);
 
 	private:
-		std::vector<int> dayDB;
-		std::vector<int> monthDB;
-		std::vector<int> yearDB;
 };
