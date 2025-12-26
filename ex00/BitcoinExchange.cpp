@@ -1,5 +1,6 @@
 #include "BitcoinExchange.hpp"
-#include <vector>
+#include <algorithm>
+
 
 BitcoinExchange::BitcoinExchange(){}
 BitcoinExchange::~BitcoinExchange(){}
@@ -16,9 +17,9 @@ BitcoinExchange &BitcoinExchange::operator=(BitcoinExchange &other)
 bool BitcoinExchange::validateFile(char *file)
 {
 	if (access(file, F_OK))
-		return (std::cout << "ERROR, '"<< file <<  "' doesn't exist" << std::endl, false);
+		return (std::cerr << "ERROR, '"<< file <<  "' doesn't exist" << std::endl, false);
 	if (access(file, R_OK))
-		return (std::cout << "ERROR, '"<< file <<  "' cannot be opened" << std::endl, false);
+		return (std::cerr << "ERROR, '"<< file <<  "' cannot be opened" << std::endl, false);
 	return true;
 }
 
@@ -31,6 +32,23 @@ bool BitcoinExchange::safeStoi(std::string number)
 	catch (std::exception &e)
 	{
 		return false;
+	}
+	return true;
+}
+
+bool BitcoinExchange::onlyDigits(std::string str)
+{
+	if (str.size() < 10) // YYYY-MM-DD
+		return false;
+	for (size_t i = 0; i < str.size(); ++i)
+	{
+		if (i != 4 && i != 7 && (str[i] < '0' || str[i] > '9'))
+			return false;
+		if (i == 4 || i == 7)
+		{
+			if (str[i] != '-')
+				return false;
+		}
 	}
 	return true;
 }
@@ -51,7 +69,7 @@ void BitcoinExchange::extractDate(std::vector<Exchange> &vector)
 		extract = dateStr.substr(0, pos);
 		rest = dateStr.substr(pos + 1, dateStr.size());
 		dateStr = rest;
-		if (!safeStoi(extract)) // Check if year is valid
+		if (onlyDigits(dateStr) && (!safeStoi(extract) || extract.size() != 4)) // Check if year is valid
 			continue;
 		vector[index].date.year = stringToInt(extract);
 		pos = rest.find("-");
@@ -60,14 +78,14 @@ void BitcoinExchange::extractDate(std::vector<Exchange> &vector)
 		extract = dateStr.substr(0, pos);
 		rest = dateStr.substr(pos + 1, dateStr.size());
 		dateStr = rest;
-		if (!safeStoi(extract)) // Check if month is valid
+		if (onlyDigits(dateStr) &&(!safeStoi(extract) || extract.size() != 2)) // Check if month is valid
 			continue;
 		vector[index].date.month = stringToInt(extract);
 		pos = rest.find("-");
 		if (pos != std::string::npos)
 			continue;
 		extract = dateStr.substr(0, dateStr.size());
-		if (!safeStoi(extract)) // Check if day is valid, imagine all months have 31 days :)
+		if (onlyDigits(dateStr) && (!safeStoi(extract) || extract.size() != 2)) // Check if day is valid, imagine all months have 31 days :)
 			continue;
 		vector[index].date.day = stringToInt(extract);
 	}
@@ -75,13 +93,25 @@ void BitcoinExchange::extractDate(std::vector<Exchange> &vector)
 
 bool BitcoinExchange::validateDate(Date date)
 {
-	if (date.day < 1 || date.day > 31)
-		return false;
-	else if (date.month < 1 || date.month > 12)
-		return false;
-	else if (date.year < 0 || date.year > 9999)
-		return false;
-	return true;
+    if (date.year < 0 || date.month < 1 || date.month > 12)
+        return false;
+
+    int maxDays;
+
+    if (date.month == 2)
+    {
+        bool isLeap = (date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0));
+        maxDays = isLeap ? 29 : 28;
+    }
+    else if (date.month == 4 || date.month == 6 || date.month == 9 || date.month == 11)
+        maxDays = 30;
+    else
+        maxDays = 31;
+
+    if (date.day < 1 || date.day > maxDays)
+        return false;
+
+    return true;
 }
 
 void BitcoinExchange::parseData(std::vector<Exchange> &vector, std::string file, std::string sep)
@@ -130,13 +160,13 @@ void BitcoinExchange::Convert(std::vector<Exchange> &db, std::vector<Exchange> &
 		dateStr_data = data[index_data].dateStr;
 		value_data = data[index_data].value;
 		date_data = data[index_data].date;
-		if (dateStr_data == "" || value_data == 0)
+		if (dateStr_data == "" || value_data == ERRORCASE)
 			std::cout << "ERROR, invalid input" << std::endl;
 		else if (value_data < 0)
 			std::cout << "ERROR, number is negative" << std::endl;
 		else if (value_data > 1000)
 			std::cout << "ERROR, number is too large" << std::endl;
-		else if (!validateDate(date_data))
+		else if (!validateDate(date_data) || !onlyDigits(dateStr_data))
 			std::cout << "ERROR, date format is wrong" << std::endl;
 		else
 		{
@@ -210,6 +240,9 @@ float BitcoinExchange::stringToFloat(std::string str)
 {
 	std::istringstream stream(str);
 	float val;
+
 	stream >> val;
+	if (!stream.eof())
+		return ERRORCASE;
 	return (val);
 }

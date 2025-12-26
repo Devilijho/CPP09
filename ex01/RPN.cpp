@@ -1,7 +1,5 @@
 #include "RPN.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
+
 
 RPN::RPN(){}
 
@@ -33,7 +31,7 @@ bool RPN::verify(char *input)
 
 	while(stream >> word)
 	{
-		if (word[0] > '9' || word[0] < '0') // if first char of word is not a number
+		if (findNonDigits(word) && strToInt(word) == 0) // if it contains non digit return true
 		{
 			if (word.size() > 1 || (word[0] != '*' && word[0] != '/' && word[0] != '-' && word[0] != '+')) // if its differente than any valid operator or is longer than 1 == error
 				return (std::cerr << "ERROR, operator " << word << " not valid" << std::endl, false);
@@ -41,15 +39,20 @@ bool RPN::verify(char *input)
 		}
 		else // it is a number
 		{
-			if (strToInt(word) != strToFloat(word))
+			int strInt = strToInt(word);
+			if (strInt != strToFloat(word))
 				return (std::cerr << "ERROR, floats not valid" << std::endl, false);
+			if (strInt > 9)
+				return (std::cerr << "ERROR, number must be a single digit" << std::endl, false);
+			if (strInt < 0)
+				return (std::cerr << "ERROR, number must be positive" << std::endl, false);
 			if (findNonDigits(word))
 				return (std::cerr << "ERROR, number must be compossed of only digits from 0-9" << std::endl, false);
 			count_numbers++;
 		}
 	}
 	if (count_numbers - 1 != count_operators)
-		return (std::cerr << "Error, input not valid" << std::endl, false);
+		return (std::cerr << "Error, not enough operators (or too many)" << std::endl, false);
 	return true;
 }
 
@@ -68,6 +71,11 @@ void RPN::calculate()
 		}
 		else//is a operator
 		{
+			if (stack.size() < 2)
+			{
+				std::cerr << "ERROR, not enough operands" << std::endl;
+				exit(1);
+			}
 			num1 = stack.top();
 			stack.pop();
 			num2 = stack.top();

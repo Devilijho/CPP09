@@ -8,6 +8,8 @@
 #include <vector>
 #include <sstream>
 
+#define ERRORCASE -1
+
 struct Date
 {
 	int year, month, day;
@@ -40,6 +42,7 @@ class BitcoinExchange
 
 		int stringToInt(std::string str);
 		float stringToFloat(std::string str);
+		bool onlyDigits(std::string str);
 		long getDateValue(Date& d);
 
 	private:
